@@ -5,10 +5,18 @@ import MarvelService from './services/MarvelService';
 import './assets/styles/style.scss';
 
 const marvelService = new MarvelService();
+const apiBase = process.env.API_BASE;
+const apiKey = process.env.API_KEY;
+
+console.log(apiBase, apiKey);
 
 marvelService
   .getAllCharacters()
-  .then((res) => console.log(res.data.results))
+  .then((res) =>
+    res.data.results.forEach((element: any) => {
+      console.log(element.name);
+    })
+  )
   .catch((error) => console.error(error));
 
 marvelService
