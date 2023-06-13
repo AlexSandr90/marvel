@@ -5,8 +5,15 @@ import RandomChar from '../randomChar/RandomChar';
 import './app.scss';
 
 import decoration from '../../assets/img/vision.png';
+import { useState } from 'react';
 
 const App = () => {
+  const [selectedChar, setSelectedChar] = useState<string | number>('');
+
+  const onChartSelected = (id: string | number) => {
+    setSelectedChar(id);
+  };
+
   return (
     <div className="app">
       <Header />
@@ -14,8 +21,8 @@ const App = () => {
       <main>
         <RandomChar />
         <div className="char__content">
-          <CharList />
-          <CharInfo />
+          <CharList onChartSelected={onChartSelected} />
+          <CharInfo char={selectedChar} />
         </div>
         <img className="bg-decoration" src={decoration} alt="vidion" />
       </main>

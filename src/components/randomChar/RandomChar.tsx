@@ -3,16 +3,8 @@ import './randomChar.scss';
 import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import mjolnir from '../../assets/img/mjolnir.png';
-import error from '../../assets/img/error.gif';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-
-interface RandomCharProps {
-  name: string;
-  description: string;
-  thumbnail: string;
-  homepage: string;
-  wiki: string;
-}
+import { CharItemType } from '../../types/CharItemType';
 
 const initialPageData = {
   name: '',
@@ -26,13 +18,22 @@ const View = ({
   char,
   replasedDescription,
 }: {
-  char: RandomCharProps;
+  char: CharItemType;
   replasedDescription: string;
 }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
+  const emptyThumbnail =
+    'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
   return (
     <div className="randomchar__block">
-      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      <img
+        src={thumbnail}
+        alt="Random character"
+        className="randomchar__img"
+        style={{
+          objectFit: `${description === emptyThumbnail ? 'contain' : 'cover'}`,
+        }}
+      />
       <div className="randomchar__info">
         <p className="randomchar__name">{name}</p>
         <p className="randomchar__descr">
@@ -52,7 +53,7 @@ const View = ({
 };
 
 const RandomChar = () => {
-  const [char, setChar] = useState<RandomCharProps>(initialPageData);
+  const [char, setChar] = useState<CharItemType>(initialPageData);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
@@ -62,9 +63,10 @@ const RandomChar = () => {
 
   const marvelService = new MarvelService();
 
-  const onCharLoaded = (incomingChar: RandomCharProps) => {
+  const onCharLoaded = (incomingChar: CharItemType) => {
     setChar(incomingChar);
     setIsLoading(false);
+    setIsError(false);
   };
 
   const onError = () => {
@@ -74,16 +76,15 @@ const RandomChar = () => {
 
   const handleUpdateChar = useCallback(() => {
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-    marvelService
-      .getCharacter(id)
-      .then(onCharLoaded)
-      .catch((error) => {
-        onError();
-      });
+    setIsLoading(true);
+    marvelService.getCharacter(id).then(onCharLoaded).catch(onError);
   }, []);
 
   useEffect(() => {
     handleUpdateChar();
+
+    // const intervalId = setInterval(() => handleUpdateChar(), 3000);
+    // return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {

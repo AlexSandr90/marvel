@@ -1,7 +1,23 @@
 import './charInfo.scss';
 import thor from '../../assets/img/thor.png';
+import MarvelService from '../../services/MarvelService';
+import { useState } from 'react';
+import { CharItemType } from '../../types/CharItemType';
 
-const CharInfo = () => {
+const initialPageData = {
+  name: '',
+  description: '',
+  thumbnail: '',
+  homepage: '',
+  wiki: '',
+};
+
+const CharInfo = ({ char }: { char: string | number }) => {
+  const [charInfo, setCharInfo] = useState<CharItemType>(initialPageData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  const marvelService = new MarvelService();
   return (
     <div className="char__info">
       <div className="char__basics">
