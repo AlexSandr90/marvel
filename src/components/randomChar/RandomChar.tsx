@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import './randomChar.scss';
 import MarvelService from '../../services/MarvelService';
+import Spinner from '../spinner/Spinner';
 import mjolnir from '../../assets/img/mjolnir.png';
+import error from '../../assets/img/error.gif';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
 interface RandomCharProps {
   name: string;
@@ -19,10 +22,41 @@ const initialPageData = {
   wiki: '',
 };
 
+const View = ({
+  char,
+  replasedDescription,
+}: {
+  char: RandomCharProps;
+  replasedDescription: string;
+}) => {
+  const { name, description, thumbnail, homepage, wiki } = char;
+  return (
+    <div className="randomchar__block">
+      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      <div className="randomchar__info">
+        <p className="randomchar__name">{name}</p>
+        <p className="randomchar__descr">
+          {description.length > 0 ? description : replasedDescription}
+        </p>
+        <div className="randomchar__btns">
+          <a href={homepage} className="button button__main">
+            <div className="inner">homepage</div>
+          </a>
+          <a href={wiki} className="button button__secondary">
+            <div className="inner">Wiki</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const RandomChar = () => {
   const [char, setChar] = useState<RandomCharProps>(initialPageData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
-  const { name, description, thumbnail, homepage, wiki } = char;
+  const { description } = char;
 
   const replasedDescription = `Too mysterious a character...`;
 
@@ -30,6 +64,12 @@ const RandomChar = () => {
 
   const onCharLoaded = (incomingChar: RandomCharProps) => {
     setChar(incomingChar);
+    setIsLoading(false);
+  };
+
+  const onError = () => {
+    setIsLoading(false);
+    setIsError(true);
   };
 
   const handleUpdateChar = useCallback(() => {
@@ -37,7 +77,9 @@ const RandomChar = () => {
     marvelService
       .getCharacter(id)
       .then(onCharLoaded)
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        onError();
+      });
   }, []);
 
   useEffect(() => {
@@ -51,29 +93,18 @@ const RandomChar = () => {
     }
   }, [description]);
 
+  const errorMessage = isError ? <ErrorMessage /> : null;
+  const spinner = isLoading ? <Spinner /> : null;
+  const content = !(isLoading || isError) ? (
+    <View char={char} replasedDescription={replasedDescription} />
+  ) : null;
+
   return (
     <div className="randomchar">
-      <div className="randomchar__block">
-        <img
-          src={thumbnail}
-          alt="Random character"
-          className="randomchar__img"
-        />
-        <div className="randomchar__info">
-          <p className="randomchar__name">{name}</p>
-          <p className="randomchar__descr">
-            {description.length > 0 ? description : replasedDescription}
-          </p>
-          <div className="randomchar__btns">
-            <a href={homepage} className="button button__main">
-              <div className="inner">homepage</div>
-            </a>
-            <a href={wiki} className="button button__secondary">
-              <div className="inner">Wiki</div>
-            </a>
-          </div>
-        </div>
-      </div>
+      {errorMessage}
+      {spinner}
+      {content}
+
       <div className="randomchar__static">
         <p className="randomchar__title">
           Random character for today!
