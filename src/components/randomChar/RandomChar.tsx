@@ -24,6 +24,8 @@ const RandomChar = () => {
 
   const { name, description, thumbnail, homepage, wiki } = char;
 
+  const replasedDescription = `Too mysterious a character...`;
+
   const marvelService = new MarvelService();
 
   const onCharLoaded = (incomingChar: RandomCharProps) => {
@@ -42,6 +44,13 @@ const RandomChar = () => {
     handleUpdateChar();
   }, []);
 
+  useEffect(() => {
+    if (description.length >= 180) {
+      const replacedStr = `${description.slice(0, 170)}...`;
+      setChar({ ...char, description: replacedStr });
+    }
+  }, [description]);
+
   return (
     <div className="randomchar">
       <div className="randomchar__block">
@@ -52,7 +61,9 @@ const RandomChar = () => {
         />
         <div className="randomchar__info">
           <p className="randomchar__name">{name}</p>
-          <p className="randomchar__descr">{description}</p>
+          <p className="randomchar__descr">
+            {description.length > 0 ? description : replasedDescription}
+          </p>
           <div className="randomchar__btns">
             <a href={homepage} className="button button__main">
               <div className="inner">homepage</div>
