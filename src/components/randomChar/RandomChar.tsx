@@ -31,7 +31,7 @@ const View = ({
         alt="Random character"
         className="randomchar__img"
         style={{
-          objectFit: `${description === emptyThumbnail ? 'contain' : 'cover'}`,
+          objectFit: `${description === emptyThumbnail ? 'cover' : 'contain'}`,
         }}
       />
       <div className="randomchar__info">

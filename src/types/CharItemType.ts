@@ -5,4 +5,5 @@ export type CharItemType = {
   homepage: string;
   wiki: string;
   id?: string;
+  comics?: { resourceURI: string; name: string }[];
 };

@@ -38,7 +38,13 @@ const CharList = ({ onChartSelected }: { onChartSelected: any }) => {
         'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
 
       return (
-        <li className="char__item" key={id} onClick={() => onChartSelected(id)}>
+        <li
+          className="char__item"
+          key={id}
+          onClick={() => {
+            onChartSelected(id);
+          }}
+        >
           <img
             src={thumbnail}
             alt={name}

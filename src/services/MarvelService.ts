@@ -49,6 +49,7 @@ class MarvelService {
       homepage: comicsInfo.homepage,
       wiki: comicsInfo.wiki,
       id: char?.id,
+      comics: char?.comics?.items,
     };
   };
 }

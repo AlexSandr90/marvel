@@ -1,34 +1,40 @@
 import './charInfo.scss';
-import thor from '../../assets/img/thor.png';
 import MarvelService from '../../services/MarvelService';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CharItemType } from '../../types/CharItemType';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+import Spinner from '../spinner/Spinner';
+import Skeleton from '../skeleton/Skeleton';
 
-const initialPageData = {
-  name: '',
-  description: '',
-  thumbnail: '',
-  homepage: '',
-  wiki: '',
-};
+const initialPageData = null;
 
-const CharInfo = ({ char }: { char: string | number }) => {
-  const [charInfo, setCharInfo] = useState<CharItemType>(initialPageData);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+type ComicsType = { resourceURI: string; name: string };
 
-  const marvelService = new MarvelService();
+const Char = ({ charInfo }: any) => {
+  const { comics, thumbnail, name, homepage, description, wiki } = charInfo;
+
+  const emptyThumbnail =
+    'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
+
   return (
-    <div className="char__info">
+    <>
       <div className="char__basics">
-        <img src={thor} alt="thor" />
+        <img
+          src={thumbnail}
+          alt={name}
+          style={{
+            objectFit: `${
+              description === emptyThumbnail ? 'cover' : 'contain'
+            }`,
+          }}
+        />
         <div>
-          <div className="char__info-name"></div>
+          <div className="char__info-name">{name}</div>
           <div className="char__btns">
-            <a href="#" className="button button__main">
+            <a href={homepage} className="button button__main">
               <div className="inner">homepage</div>
             </a>
-            <a href="#" className="button button__secondary">
+            <a href={wiki} className="button button__secondary">
               <div className="inner">Wiki</div>
             </a>
           </div>
@@ -36,36 +42,78 @@ const CharInfo = ({ char }: { char: string | number }) => {
       </div>
 
       <div className="char__descr">
-        In Norse mythology, Loki is a god or jötunn (or both). Loki is the son
-        of Fárbauti and Laufey, and the brother of Helblindi and Býleistr. By
-        the jötunn Angrboða, Loki is the father of Hel, the wolf Fenrir, and the
-        world serpent Jörmungandr. By Sigyn, Loki is the father of Nari and/or
-        Narfi and with the stallion Svaðilfari as the father, Loki gave birth—in
-        the form of a mare—to the eight-legged horse Sleipnir. In addition, Loki
-        is referred to as the father of Váli in the Prose Edda.
+        {description
+          ? description
+          : 'There is no description to this character'}
       </div>
 
       <div className="char__comics">Comics: </div>
       <ul className="char__comics-list">
-        <li className="char__comics-item">
-          All-Winners Squad: Band of Heroes (2011) #3
-        </li>
-        <li className="char__comics-item">Alpha Flight (1983) #50</li>
-        <li className="char__comics-item">Amazing Spider-Man (1999) #503</li>
-        <li className="char__comics-item">Amazing Spider-Man (1999) #504</li>
-        <li className="char__comics-item">
-          AMAZING SPIDER-MAN VOL. 7: BOOK OF EZEKIEL TPB (Trade Paperback)
-        </li>
-        <li className="char__comics-item">
-          Amazing-Spider-Man: Worldwide Vol. 8 (Trade Paperback)
-        </li>
-        <li className="char__comics-item">
-          Asgardians Of The Galaxy Vol. 2: War Of The Realms (Trade Paperback)
-        </li>
-        <li className="char__comics-item">Vengeance (2011) #4</li>
-        <li className="char__comics-item">Avengers (1963) #1</li>
-        <li className="char__comics-item">Avengers (1996) #1</li>
+        {comics.length > 0 ? null : 'There is no comics with this character'}
+        {comics?.map((char: ComicsType, index: number) => {
+          return index <= 9 ? (
+            <li className="char__comics-item" key={char.name}>
+              {char.name}
+            </li>
+          ) : null;
+        })}
       </ul>
+    </>
+  );
+};
+
+const CharInfo = ({ charId }: { charId: any }) => {
+  const [charInfo, setCharInfo] = useState<CharItemType | null>(
+    initialPageData
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const marvelService = new MarvelService();
+
+  useEffect(() => {
+    handleLoadCharInfo(charId);
+  }, [charId]);
+
+  const updateChar = (char: CharItemType) => {
+    setCharInfo(char);
+    setIsLoading(false);
+    setIsError(false);
+  };
+
+  const onError = () => {
+    setIsLoading(false);
+    setIsError(true);
+  };
+
+  const handleLoadCharInfo = useCallback((id: any) => {
+    if (!id) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    marvelService
+      .getCharacter(id)
+      .then((res) => {
+        updateChar(res);
+      })
+      .catch((error) => onError());
+  }, []);
+
+  const skeleton = charInfo || isLoading || isError ? null : <Skeleton />;
+  const errorMessage = isError ? <ErrorMessage /> : null;
+  const spinner = isLoading ? <Spinner /> : null;
+  const content = !(isLoading || isError || !charInfo) ? (
+    <Char charInfo={charInfo} />
+  ) : null;
+
+  return (
+    <div className="char__info">
+      {skeleton}
+      {errorMessage}
+      {spinner}
+      {content}
     </div>
   );
 };
