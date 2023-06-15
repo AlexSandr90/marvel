@@ -42,7 +42,10 @@ const Char = ({ charInfo }: any) => {
         {comics.length > 0 ? null : 'There is no comics with this character'}
         {comics?.map((char: ComicsType, index: number) => {
           return index <= 9 ? (
-            <li className="char__comics-item" key={char.name}>
+            <li
+              className="char__comics-item"
+              key={`${char.name}${char.resourceURI}`}
+            >
               {char.name}
             </li>
           ) : null;

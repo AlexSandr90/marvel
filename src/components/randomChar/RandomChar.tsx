@@ -45,9 +45,6 @@ const RandomChar = () => {
 
   useEffect(() => {
     handleUpdateChar();
-
-    // const intervalId = setInterval(() => handleUpdateChar(), 3000);
-    // return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
