@@ -4,6 +4,7 @@ import MarvelService from '../../services/MarvelService';
 import { CharItemType } from '../../types/CharItemType';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
+import List from './List';
 
 const CharList = ({ onChartSelected }: { onChartSelected: any }) => {
   const [charList, setCharList] = useState<CharItemType[]>([]);
@@ -31,40 +32,11 @@ const CharList = ({ onChartSelected }: { onChartSelected: any }) => {
     handleCharListLoaded();
   }, []);
 
-  const renderChars = useCallback(() => {
-    const charItems = charList.map((char: CharItemType) => {
-      const { id, thumbnail, name } = char;
-      const emptyThumbnail: string =
-        'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
-
-      return (
-        <li
-          className="char__item"
-          key={id}
-          onClick={() => {
-            onChartSelected(id);
-          }}
-        >
-          <img
-            src={thumbnail}
-            alt={name}
-            style={{
-              objectFit: `${thumbnail === emptyThumbnail ? 'unset' : 'cover'}`,
-            }}
-          />
-          <div className="char__name">{name}</div>
-        </li>
-      );
-    });
-
-    return <ul className="char__grid">{charItems}</ul>;
-  }, [charList]);
-
-  const chars = renderChars();
-
   const errorMessage = isError ? <ErrorMessage /> : null;
   const spinner = isLoading ? <Spinner /> : null;
-  const content = !(isLoading || isError) ? chars : null;
+  const content = !(isLoading || isError) ? (
+    <List charList={charList} onChartSelected={onChartSelected} />
+  ) : null;
 
   return (
     <div className="char__list">

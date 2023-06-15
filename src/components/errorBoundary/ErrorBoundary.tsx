@@ -1,11 +1,11 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
-type ErrorBoundaryPrps = {
+type ErrorBoundaryProps = {
   children: ReactNode;
 };
 
-class ErrorBoundary extends Component<ErrorBoundaryPrps> {
+class ErrorBoundary extends Component<ErrorBoundaryProps> {
   state = {
     error: false,
   };
