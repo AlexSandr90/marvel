@@ -1,8 +1,12 @@
 class MarvelService {
   _apiBase = 'https://gateway.marvel.com:443/v1/public/';
   _apiKey = '0ec8aa36fb65000bb74b18cb883ebf5e';
+  _baseOffset = 0;
 
-  getSource = async (url: string) => {
+  // apiBase = process.env.API_BASE;
+  // apiKey = process.env.API_KEY;
+
+  getResource = async (url: string) => {
     let res = await fetch(url);
 
     if (!res.ok) {
@@ -12,19 +16,42 @@ class MarvelService {
     return await res.json();
   };
 
-  getAllCharacters = () => {
-    return this.getSource(
-      `${this._apiBase}characters?limit=9&offset=210&apikey=${this._apiKey}`
+  getAllCharacters = async (offset: number = this._baseOffset) => {
+    const res = await this.getResource(
+      `${this._apiBase}characters?limit=9&offset=${offset}&apikey=${this._apiKey}`
     );
-    // return this.getSource(
-    //   `https://gateway.marvel.com:443/v1/public/characters?apikey=0ec8aa36fb65000bb74b18cb883ebf5e`
-    // );
+
+    return res.data.results.map(this._transformCharacter);
   };
 
-  getCharacter = (id: number) => {
-    return this.getSource(
+  getCharacter = async (id: number) => {
+    const res = await this.getResource(
       `${this._apiBase}characters/${id}?apikey=${this._apiKey}`
     );
+    return await this._transformCharacter(res.data.results[0]);
+  };
+
+  _transformCharacter = (char: any) => {
+    let comicsInfo = {} as { homepage: string; wiki: string };
+
+    char.urls.forEach(({ type, url }: { type: string; url: string }) => {
+      if (type === 'detail') {
+        comicsInfo.homepage = url;
+      }
+      if (type === 'comiclink') {
+        comicsInfo.wiki = url;
+      }
+    });
+
+    return {
+      name: char.name,
+      description: char.description,
+      thumbnail: `${char.thumbnail.path}.${char.thumbnail.extension}`,
+      homepage: comicsInfo.homepage,
+      wiki: comicsInfo.wiki,
+      id: char?.id,
+      comics: char?.comics?.items,
+    };
   };
 }
 
