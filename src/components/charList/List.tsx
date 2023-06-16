@@ -17,6 +17,7 @@ const List = ({
     return (
       <li
         className="char__item"
+        tabIndex={0}
         key={id}
         ref={setRef}
         onClick={() => {
