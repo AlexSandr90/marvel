@@ -28,9 +28,9 @@
       object-fit: cover;
       transform: translate(-15px, -15px);
     }
-    &__selected {
+    &_selected {
       box-shadow: 0 5px 20px $main-color;
-      transform: rotateY(-8px);
+      transform: translateY(-8px);
     }
   }
   &__name {

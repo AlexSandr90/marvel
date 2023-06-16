@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import './charList.scss';
 import MarvelService from '../../services/MarvelService';
 import { CharItemType } from '../../types/CharItemType';
@@ -38,6 +38,12 @@ const CharList = ({ onChartSelected }: { onChartSelected: any }) => {
   } = charListState;
 
   const marvelServise = new MarvelService();
+
+  const itemRef = useRef([] as any[]);
+
+  const setRef = (ref: any) => {
+    itemRef.current.push(ref);
+  };
 
   const onCharListLoaded = useCallback((charListLoaded: CharItemType[]) => {
     let ended = false;
@@ -83,6 +89,19 @@ const CharList = ({ onChartSelected }: { onChartSelected: any }) => {
     });
   };
 
+  const handlePageSelected = useCallback(
+    (id: string | undefined, index: number) => {
+      onChartSelected(id);
+
+      itemRef.current.forEach((item: any) => {
+        return item?.classList?.remove('char__item_selected');
+      });
+      itemRef.current[index]?.classList?.add('char__item_selected');
+      itemRef.current[index]?.focus();
+    },
+    []
+  );
+
   useEffect(() => {
     handleCharListLoaded(pageOffset);
   }, [pageOffset]);
@@ -90,7 +109,11 @@ const CharList = ({ onChartSelected }: { onChartSelected: any }) => {
   const errorMessage = isError ? <ErrorMessage /> : null;
   const spinner = isLoading ? <Spinner /> : null;
   const content = !(isLoading || isError) ? (
-    <List charList={charList} onChartSelected={onChartSelected} />
+    <List
+      charList={charList}
+      onChartSelected={handlePageSelected}
+      setRef={setRef}
+    />
   ) : null;
 
   return (
